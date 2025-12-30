@@ -7,7 +7,6 @@ import type React from "react";
 
 import ItemCard from "../components/ItemCard";
 import SearchBar from "../components/SearchBar";
-import ItemCardSkeleton from "../components/ItemCardSkeleton";
 import APIError from "./APIError";
 import { prisma } from "@/lib/db"; // direct Prisma test
 import Filters from "../components/Filters";
@@ -270,24 +269,9 @@ export default async function CatalogPage() {
     stateMsg = (
       <APIError
         title="Failed to load CatalogItem data."
-        message="The Catalog API is not reachable."
+        message="The database connection failed. Please try again later."
         apiStatus={apiStatus}
       />
-    );
-  }
-
-  if (!apiItems.length) {
-    return (
-      <main className="catalog-grid">
-        <p role="status">No items available.</p>
-
-        {/* API route table mirrors the Prisma data but through /api/catalog */}
-        <DiagnosticsPanel
-          title="Catalog API Status"
-          status={apiStatus}
-          entries={groupedApiEntries}
-        />
-      </main>
     );
   }
 
@@ -316,6 +300,12 @@ export default async function CatalogPage() {
           className="catalog-pane catalog-pane-center"
         >
           <h1 style={{ margin: "0 0 1rem 0" }}>Catalog</h1>
+
+          {!apiItems.length && (
+            <p role="status" style={{ margin: "0 0 1rem 0" }}>
+              No items available.
+            </p>
+          )}
 
           <div className="catalog-grid">
             {apiItems.map((item, index) => (
