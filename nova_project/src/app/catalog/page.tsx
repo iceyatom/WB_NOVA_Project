@@ -11,6 +11,7 @@ import APIError from "./APIError";
 import { prisma } from "@/lib/db"; // direct Prisma test
 import Filters from "../components/Filters";
 import CatalogPagination from "../components/CatalogPagination";
+import CatalogDebugPanel from "../components/CatalogDebugPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -335,7 +336,7 @@ export default async function CatalogPage() {
           aria-label="Context panel"
           className="catalog-pane catalog-pane-right"
         >
-          <p style={{ margin: 0, opacity: 0.6 }}></p>
+          <CatalogDebugPanel />
         </aside>
       </div>
     </main>
