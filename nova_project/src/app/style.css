@@ -1227,6 +1227,16 @@ body {
   box-shadow: 0 0 0 3px var(--focus);
 }
 
+.pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
 @media (max-width: 720px) {
   .pagination__controls {
     flex-direction: column;

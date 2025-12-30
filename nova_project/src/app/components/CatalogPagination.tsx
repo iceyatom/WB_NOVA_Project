@@ -10,6 +10,7 @@ type CatalogPaginationProps = {
 };
 
 const DEFAULT_PAGE_SIZES = [20, 50, 100];
+const ELLIPSIS = "ellipsis";
 
 function normalizePageSizes(
   initialPageSize: number,
@@ -20,9 +21,44 @@ function normalizePageSizes(
   return Array.from(options).sort((a, b) => a - b);
 }
 
+function buildPagination(currentPage: number, totalPages: number) {
+  if (totalPages <= 1) {
+    return [1];
+  }
+
+  const pages = new Set<number>();
+  pages.add(1);
+  pages.add(totalPages);
+
+  for (let page = currentPage - 2; page <= currentPage + 2; page += 1) {
+    if (page >= 1 && page <= totalPages) {
+      pages.add(page);
+    }
+  }
+
+  const ordered = Array.from(pages).sort((a, b) => a - b);
+  const result: Array<number | typeof ELLIPSIS> = [];
+
+  ordered.forEach((page, index) => {
+    if (index === 0) {
+      result.push(page);
+      return;
+    }
+
+    const prevPage = ordered[index - 1];
+    if (page - prevPage > 1) {
+      result.push(ELLIPSIS);
+    }
+
+    result.push(page);
+  });
+
+  return result;
+}
+
 export default function CatalogPagination({
   totalItems,
-  initialPageSize = 12,
+  initialPageSize = 20,
   pageSizeOptions = DEFAULT_PAGE_SIZES,
 }: CatalogPaginationProps) {
   const resolvedPageSizes = useMemo(
@@ -42,8 +78,8 @@ export default function CatalogPagination({
   }, [currentPage, totalPages]);
 
   const pages = useMemo(
-    () => Array.from({ length: totalPages }, (_, index) => index + 1),
-    [totalPages],
+    () => buildPagination(currentPage, totalPages),
+    [currentPage, totalPages],
   );
 
   const handlePageSizeChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -80,25 +116,37 @@ export default function CatalogPagination({
         </button>
 
         <div className="pagination__pages" role="radiogroup" aria-label="Page">
-          {pages.map((page) => (
-            <div key={page} className="pagination__page">
-              <input
-                id={`catalog-page-${page}`}
-                type="radio"
-                name="catalog-page"
-                className="pagination__page-input"
-                value={page}
-                checked={page === currentPage}
-                onChange={() => setCurrentPage(page)}
-              />
-              <label
-                htmlFor={`catalog-page-${page}`}
-                className="pagination__page-label"
-              >
-                {page}
-              </label>
-            </div>
-          ))}
+          {pages.map((page, index) => {
+            if (page === ELLIPSIS) {
+              return (
+                <div key={`ellipsis-${index}`} className="pagination__page">
+                  <span className="pagination__ellipsis" aria-hidden="true">
+                    ...
+                  </span>
+                </div>
+              );
+            }
+
+            return (
+              <div key={page} className="pagination__page">
+                <input
+                  id={`catalog-page-${page}`}
+                  type="radio"
+                  name="catalog-page"
+                  className="pagination__page-input"
+                  value={page}
+                  checked={page === currentPage}
+                  onChange={() => setCurrentPage(page)}
+                />
+                <label
+                  htmlFor={`catalog-page-${page}`}
+                  className="pagination__page-label"
+                >
+                  {page}
+                </label>
+              </div>
+            );
+          })}
         </div>
 
         <button
